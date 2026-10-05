@@ -16,4 +16,6 @@ suggestions.addEventListener('click', (evenement) => {
   const bouton = evenement.target.closest('button');
   if (!bouton) return;
   champ.value = bouton.textContent;
+  champ.focus();
+  statut.textContent = 'Question copiée : modifiez-la ou envoyez-la.';
 });
