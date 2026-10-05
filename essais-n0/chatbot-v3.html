@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TriBot, ton assistant tri des déchets</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e8f5e9;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .chat-container {
+      width: 420px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+    .chat-header {
+      background: #2e7d32;
+      color: white;
+      padding: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #clear-btn {
+      background: transparent;
+      color: white;
+      border: 1px solid white;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #chat-box {
+      height: 400px;
+      overflow-y: auto;
+      padding: 15px;
+    }
+    .message {
+      margin: 8px 0;
+      padding: 10px 14px;
+      border-radius: 18px;
+      max-width: 80%;
+    }
+    .user {
+      background: #c8e6c9;
+      margin-left: auto;
+      text-align: right;
+    }
+    .bot {
+      background: #f1f1f1;
+    }
+    .input-area {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+    #user-input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      outline: none;
+      font-size: 15px;
+    }
+    #send-btn {
+      background: #2e7d32;
+      color: white;
+      border: none;
+      padding: 0 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <span>Assistant Tri</span>
+      <button id="clear-btn" onclick="clearChat()">Effacer</button>
+    </div>
+    <div id="chat-box"></div>
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Pose ta question sur le tri...">
+      <button id="send-btn" onclick="sendMessage()">Envoyer</button>
+    </div>
+  </div>
+
+  <script>
+    const responses = {
+      "bonjour": "Bonjour ! Je suis TriBot. Pose-moi une question sur le tri des déchets !",
+      "salut": "Salut ! Je suis TriBot. Pose-moi une question sur le tri des déchets !",
+      "verre": "Le verre (bouteilles, pots, bocaux) va dans le conteneur à verre, sans bouchon ni couvercle. Attention : la vaisselle et les miroirs n'y vont pas !",
+      "plastique": "Tous les emballages en plastique (bouteilles, pots de yaourt, films) vont dans le bac jaune. Inutile de les laver, il suffit de bien les vider.",
+      "papier": "Papiers, journaux et cartons vont dans le bac jaune (ou bleu selon ta commune). Pense à aplatir les cartons !",
+      "carton": "Papiers, journaux et cartons vont dans le bac jaune (ou bleu selon ta commune). Pense à aplatir les cartons !",
+      "compost": "Les épluchures, le marc de café et les restes de repas peuvent aller au compost. Évite la viande et le poisson si c'est un compost de jardin.",
+      "pile": "Les piles et batteries se rapportent en magasin ou en déchetterie. Ne les jette jamais à la poubelle !",
+      "déchetterie": "La déchetterie accepte les encombrants, les gravats, les déchets verts, l'électroménager et les produits dangereux. Renseigne-toi sur les horaires auprès de ta mairie.",
+      "ramassage": "Les jours de ramassage dépendent de ta commune. Consulte le site de ta mairie ou le calendrier de collecte distribué dans ta boîte aux lettres.",
+      "réutiliser": "Avant de jeter, pense à réutiliser : bocaux pour ranger, vêtements à donner, objets à réparer dans un Repair Café !"
+    };
+
+    function getBotResponse(message) {
+      const msg = message.toLowerCase();
+      for (const key in responses) {
+        if (msg.includes(key)) {
+          return responses[key];
+        }
+      }
+      return "Désolé, je n'ai pas compris. Essaie de me parler de verre, de plastique, de compost ou de déchetterie !";
+    }
+
+    let history = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+    function displayMessage(text, sender) {
+      const chatBox = document.getElementById("chat-box");
+      const div = document.createElement("div");
+      div.className = "message " + sender;
+      div.innerHTML = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addMessage(text, sender) {
+      displayMessage(text, sender);
+      history.push({ text: text, sender: sender });
+      localStorage.setItem("chatHistory", JSON.stringify(history));
+    }
+
+    function loadHistory() {
+      history.forEach(msg => displayMessage(msg.text, msg.sender));
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("user-input");
+      const text = input.value;
+      addMessage(text, "user");
+      input.value = "";
+      setTimeout(() => {
+        addMessage(getBotResponse(text), "bot");
+      }, 500);
+    }
+
+    function clearChat() {
+      document.getElementById("chat-box").innerHTML = "";
+    }
+
+    document.getElementById("user-input").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    loadHistory();
+    addMessage("Bienvenue ! Je suis ton assistant tri. Pose-moi une question sur le verre, le plastique, le compost ou la déchetterie.", "bot");
+  </script>
+</body>
+</html>

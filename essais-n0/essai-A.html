@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatbot Tri des Déchets</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", sans-serif;
+    background: #f4f7f2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    width: 100%;
+    background: #388e3c;
+    color: #fff;
+    text-align: center;
+    padding: 16px;
+  }
+  #chat {
+    width: 100%;
+    max-width: 600px;
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+  }
+  .msg { margin: 10px 0; padding: 10px 14px; border-radius: 10px; max-width: 85%; }
+  .msg.user { background: #a5d6a7; margin-left: auto; }
+  .msg.bot { background: #fff; border: 1px solid #ddd; }
+  form {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    gap: 8px;
+    padding: 16px;
+  }
+  input { flex: 1; padding: 12px; border: 1px solid #aaa; border-radius: 8px; font-size: 1rem; }
+  button { padding: 12px 18px; background: #388e3c; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tri des Déchets</h1>
+  <p>Ton assistant pour bien trier</p>
+</header>
+
+<div id="chat"></div>
+
+<form id="form">
+  <input id="input" type="text" placeholder="Ex : où jeter une bouteille en verre ?" autocomplete="off">
+  <button type="submit">Envoyer</button>
+</form>
+
+<script>
+const rules = [
+  { keywords: ["bonjour", "salut", "coucou"], answer: "Bonjour ! Pose-moi ta question sur le tri des déchets." },
+  { keywords: ["verre", "bouteille", "bocal"], answer: "Le verre va dans le conteneur à verre (colonne verte), sans bouchon." },
+  { keywords: ["plastique", "emballage", "yaourt"], answer: "Les emballages plastiques vont dans le bac jaune, bien vidés." },
+  { keywords: ["papier", "carton", "journal"], answer: "Papiers et cartons vont dans le bac jaune, cartons aplatis." },
+  { keywords: ["épluchure", "compost", "café"], answer: "Les biodéchets vont au composteur ou dans le bac marron si ta commune en a un." },
+  { keywords: ["pile", "batterie", "ampoule"], answer: "Piles, batteries et ampoules se déposent dans les bornes de collecte en magasin." },
+  { keywords: ["meuble", "encombrant", "déchetterie"], answer: "Les encombrants vont en déchetterie ou en collecte sur rendez-vous." },
+  { keywords: ["jour", "ramassage", "collecte"], answer: "Les jours de collecte dépendent de ta commune : consulte le calendrier de ta mairie." },
+  { keywords: ["réutiliser", "donner", "réparer"], answer: "Donne, répare, réutilise : ressourceries et Repair Cafés sont là pour ça !" }
+];
+
+function reply(text) {
+  const t = text.toLowerCase();
+  for (const rule of rules) {
+    if (rule.keywords.some(k => t.includes(k))) return rule.answer;
+  }
+  return "Je ne connais pas encore la réponse. Essaie avec : verre, plastique, papier, compost, piles, encombrants.";
+}
+
+function add(text, who) {
+  const div = document.createElement("div");
+  div.className = "msg " + who;
+  div.textContent = text;
+  const chat = document.getElementById("chat");
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+document.getElementById("form").addEventListener("submit", e => {
+  e.preventDefault();
+  const input = document.getElementById("input");
+  const text = input.value.trim();
+  if (!text) return;
+  add(text, "user");
+  add(reply(text), "bot");
+  input.value = "";
+});
+
+add("Bonjour ! Je suis ton assistant tri. Que veux-tu jeter aujourd'hui ?", "bot");
+</script>
+</body>
+</html>
