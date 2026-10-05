@@ -1,17 +1,14 @@
-// Point d'entrée de la page Cap Web.
+// Point d'entrée de la page Cap Web : relie le formulaire, le cerveau et la vue.
 import { validateMessage, replyTo } from './brain.js';
+import { renderMessages } from './view.js';
 
 const formulaire = document.querySelector('#chat-form');
 const champ = document.querySelector('#message');
 const liste = document.querySelector('#messages');
 const statut = document.querySelector('#status');
 
-function ajouterLigne(texte) {
-  const ligne = document.createElement('li');
-  // textContent : le message reste du texte, jamais du HTML.
-  ligne.textContent = texte;
-  liste.append(ligne);
-}
+// La conversation : des objets { role, text }, role valant user ou assistant.
+const historique = [];
 
 formulaire.addEventListener('submit', (evenement) => {
   // Pas de rechargement : la page reste en place.
@@ -22,8 +19,9 @@ formulaire.addEventListener('submit', (evenement) => {
     champ.focus();
     return;
   }
-  ajouterLigne(`Vous : ${resultat.value}`);
-  ajouterLigne(`Cap Web : ${replyTo(resultat.value)}`);
+  historique.push({ role: 'user', text: resultat.value });
+  historique.push({ role: 'assistant', text: replyTo(resultat.value) });
+  renderMessages(historique, liste);
   champ.value = '';
   statut.textContent = '';
 });
