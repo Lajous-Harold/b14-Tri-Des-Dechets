@@ -7,3 +7,13 @@ formulaire.addEventListener('submit', (evenement) => {
   evenement.preventDefault();
   statut.textContent = 'Interface prête.';
 });
+
+// Boutons de questions : un clic copie la question dans le champ, sans l'envoyer.
+const champ = document.querySelector('#message');
+const suggestions = document.querySelector('#suggestions');
+
+suggestions.addEventListener('click', (evenement) => {
+  const bouton = evenement.target.closest('button');
+  if (!bouton) return;
+  champ.value = bouton.textContent;
+});
