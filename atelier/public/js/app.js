@@ -1,22 +1,29 @@
 // Point d'entrée de la page Cap Web.
+import { validateMessage, replyTo } from './brain.js';
+
 const formulaire = document.querySelector('#chat-form');
 const champ = document.querySelector('#message');
 const liste = document.querySelector('#messages');
 const statut = document.querySelector('#status');
 
+function ajouterLigne(texte) {
+  const ligne = document.createElement('li');
+  // textContent : le message reste du texte, jamais du HTML.
+  ligne.textContent = texte;
+  liste.append(ligne);
+}
+
 formulaire.addEventListener('submit', (evenement) => {
   // Pas de rechargement : la page reste en place.
   evenement.preventDefault();
-  const texte = champ.value.trim();
-  if (texte === '') {
-    statut.textContent = 'Écrivez un message avant d’envoyer.';
+  const resultat = validateMessage(champ.value);
+  if (!resultat.ok) {
+    statut.textContent = resultat.error;
     champ.focus();
     return;
   }
-  const ligne = document.createElement('li');
-  // textContent : le message reste du texte, jamais du HTML.
-  ligne.textContent = `Vous : ${texte}`;
-  liste.append(ligne);
+  ajouterLigne(`Vous : ${resultat.value}`);
+  ajouterLigne(`Cap Web : ${replyTo(resultat.value)}`);
   champ.value = '';
   statut.textContent = '';
 });
